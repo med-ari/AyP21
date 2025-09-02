@@ -1,0 +1,1262 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dominando la Geometría Plana: Áreas, Perímetros y Relaciones Métricas</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true
+        },
+        svg: {
+          fontCache: 'global'
+        },
+        chtml: {
+          displayAlign: 'left'
+        }
+      };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5; --primary-dark: #4338ca; --primary-light: #eef2ff;
+            --secondary-color: #64748b; --success-color: #10b981; --success-light: #ecfdf5;
+            --danger-color: #ef4444; --danger-light: #fef2f2; --warning-color: #f59e0b;
+            --light-bg: #f1f5f9; --border-color: #cbd5e1; --text-color: #1e293b;
+            --white: #ffffff; --progress-color-start: #4f46e5; --progress-color-end: #10b981;
+        }
+        @keyframes moveGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        body {
+            font-family: 'Inter', sans-serif; display: flex; justify-content: center;
+            align-items: flex-start; min-height: 100vh;
+            background: linear-gradient(-45deg, #6d28d9, #4f46e5, #d946ef, #10b981);
+            background-size: 400% 400%; animation: moveGradient 20s ease infinite;
+            margin: 0; padding: 2em 1em;
+        }
+        .main-wrapper { width: 100%; max-width: 900px; position: relative; }
+        .card { background: var(--white); padding: 2.5em; border-radius: 16px; box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15); animation: fadeIn 0.5s ease-out; }
+        .hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDownFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #category-selection-screen h2 { font-size: 2em; color: var(--primary-color); text-align: center; margin-top: 0; margin-bottom: 0.5em; }
+        #category-selection-screen .subtitle { text-align: center; color: var(--secondary-color); margin-bottom: 2em; font-size: 1.1em; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+        #category-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5em; margin-bottom: 2.5em; }
+        .category-item { background-color: var(--white); border: 2px solid var(--border-color); border-radius: 12px; padding: 1.5em; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .category-item:hover:not(.completed) { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(79,70,229,0.1); border-color: var(--primary-color); }
+        .category-item h3 { margin: 0 0 0.5em 0; color: var(--primary-dark); font-size: 1.25em; }
+        .category-item p { margin: 0; color: var(--secondary-color); font-size: 0.95em; line-height: 1.5; }
+        .category-item.completed { border-color: var(--success-color); background-color: var(--success-light); cursor: default; }
+        .category-item.completed:hover { transform: none; box-shadow: none; }
+        .category-item.completed::before { content: '✔'; font-weight: bold; position: absolute; top: 1em; right: 1.2em; color: var(--success-color); font-size: 1.5em; }
+        .category-item .progress-info { margin-top: 1em; font-weight: bold; color: var(--success-color); }
+        #overall-progress-container { margin-top: 2em; text-align: center; border-top: 1px solid var(--border-color); padding-top: 2em;}
+        #overall-progress-container h3 { margin: 0 0 0.5em 0; color: var(--text-color); }
+        #overall-score { font-size: 1.2em; color: var(--secondary-color); }
+        #show-final-results-btn { padding: 12px 30px; font-size: 1em; font-weight: bold; color: var(--white); background-color: var(--success-color); border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; margin-top: 1em; }
+        #show-final-results-btn:hover { background-color: #059669; }
+
+        /* --- New Summary Card Styles --- */
+        #summary-container h2 { font-size: 1.8em; margin-top: 0; margin-bottom: 0.2em; color: var(--primary-color); }
+        #summary-container .subtitle { color: var(--secondary-color); margin-top: 0; margin-bottom: 2em; }
+        .summary-section { margin-bottom: 2.5em; }
+        .summary-section h3 { font-size: 1.2em; font-weight: 700; color: var(--text-color); margin-bottom: 1em; padding-bottom: 0.5em; border-bottom: 2px solid var(--primary-light); display: flex; align-items: center; gap: 0.75em; }
+        .summary-key-concepts { line-height: 1.7; color: #374151; }
+        .summary-key-concepts p, .summary-key-concepts ul, .summary-key-concepts ol { margin-bottom: 1em; }
+        .summary-key-concepts ul, .summary-key-concepts ol { padding-left: 20px; }
+        .summary-key-concepts strong { color: var(--primary-dark); }
+        .summary-key-concepts mjx-container[display="true"] { background-color: rgba(79, 70, 229, 0.05); padding: 1em; border-radius: 8px; margin: 1em 0; }
+        .summary-tips-list { list-style: none; padding: 0; }
+        .summary-tips-list li { display: flex; align-items: flex-start; gap: 1em; margin-bottom: 1em; background-color: var(--primary-light); padding: 1em; border-radius: 8px; }
+        .summary-tips-list li::before { content: '💡'; font-size: 1.2em; line-height: 1.5; }
+        #summary-continue-btn { padding: 12px 30px; font-size: 1em; font-weight: bold; color: var(--white); background-color: var(--primary-color); border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: block; width: 100%; }
+        #summary-continue-btn:hover { background-color: var(--primary-dark); transform: scale(1.02); }
+
+        /* --- Main Quiz & Final Screen Styles --- */
+        #quiz-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5em; }
+        #problem-header { color: var(--text-color); font-weight: 600; font-size: 1.1em; }
+        #score-counter { color: var(--success-color); font-weight: 600; font-size: 1em; background-color: var(--success-light); padding: 5px 10px; border-radius: 8px; }
+        #progress-container { width: 100%; background-color: #e2e8f0; border-radius: 10px; margin-bottom: 1.5em; height: 12px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--progress-color-start), var(--progress-color-end)); border-radius: 10px; transition: width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1); }
+        #question-container { font-size: 1.15em; line-height: 1.7; margin: 1em 0; color: var(--text-color); text-align: justify; }
+        #question-container table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+        #question-container th, #question-container td { border: 1px solid var(--border-color); padding: 12px; text-align: center; }
+        #question-container th { background-color: var(--light-bg); font-weight: 600; }
+        #graph-container, .option-graph-canvas-container { width: 100%; max-width: 450px; margin: 1.5em auto; border-radius: 8px; overflow: hidden; }
+        #graph-container svg, #graph-container img, .option-graph-canvas-container svg, .option-graph-canvas-container img {max-width: 100%; height: auto; display: block; margin: 0 auto; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);}
+        #options-container { margin-top: 1.5em; display: flex; flex-direction: column; gap: 0.75em; }
+        .option-button { display: flex; align-items: center; gap: 1em; width: 100%; padding: 14px 18px; font-size: 1.05em; text-align: left; background-color: var(--white); border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .option-button:hover:not(.disabled) { border-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .option-button .label { font-weight: bold; color: var(--primary-color); }
+        .option-button .value { flex-grow: 1; }
+        .option-button.correct { border-color: var(--success-color); background-color: var(--success-light); }
+        .option-button.correct .label { color: var(--success-color); }
+        .option-button.incorrect { border-color: var(--danger-color); background-color: var(--danger-light); }
+        .option-button.incorrect .label { color: var(--danger-color); }
+        .option-button.disabled { cursor: not-allowed; }
+        .options-grid-with-graphs { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+        .option-block-graph { padding: 1em; border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.2s ease-in-out; background-color: var(--white); }
+        .option-block-graph:hover:not(.disabled) { border-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .option-block-graph.correct { border-color: var(--success-color)!important; background-color: var(--success-light); }
+        .option-block-graph.incorrect { border-color: var(--danger-color)!important; background-color: var(--danger-light); }
+        .option-block-graph .label { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; color: var(--primary-color); }
+        #feedback-container { margin-top: 1.5em; padding: 1.2em; border-radius: 12px; display: none; animation: slideDownFade 0.4s ease-out; line-height: 1.7; text-align: justify; }
+        #feedback-container.correct { background-color: var(--success-light); border-left: 5px solid var(--success-color); }
+        #feedback-container.incorrect { background-color: var(--danger-light); border-left: 5px solid var(--danger-color); }
+        #feedback-title { display: flex; align-items: center; font-size: 1.2em; font-weight: 700; margin-bottom: 0.5em; }
+        #feedback-title svg { width: 24px; height: 24px; margin-right: 8px; }
+        #feedback-container.correct #feedback-title { color: var(--success-color); }
+        #feedback-container.incorrect #feedback-title { color: var(--danger-color); }
+        #navigation-container { display: flex; justify-content: flex-end; margin-top: 2em; }
+        #next-button, .nav-btn { padding: 12px 30px; font-size: 1em; font-weight: bold; color: var(--white); background-color: var(--primary-color); border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; }
+        #next-button { visibility: hidden; opacity: 0; }
+        #next-button.visible { visibility: visible; opacity: 1; }
+        #next-button:hover, .nav-btn:hover { background-color: var(--primary-dark); }
+        #final-screen { text-align: center; animation: fadeIn 0.5s ease-out; }
+        #final-screen h2 { font-size: 2.2em; color: var(--primary-color); font-weight: 700; }
+        #final-screen p { font-size: 1.2em; }
+        .highlight { color: var(--primary-color); font-weight: 700; }
+        @media (max-width: 680px) { .options-grid-with-graphs { grid-template-columns: 1fr; } #category-list { grid-template-columns: 1fr; }}
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div id="category-selection-screen" class="card">
+            <h2>Dominando la Geometría Plana: Áreas, Perímetros y Relaciones Métricas</h2>
+            <p class="subtitle">Selecciona un tema para comenzar. Cada sección se enfoca en una habilidad clave. ¡Completa todas las secciones para demostrar tu maestría!</p>
+            <ul id="category-list"></ul>
+            <div id="overall-progress-container" class="hidden">
+                <h3>Progreso General</h3>
+                <p id="overall-score"></p>
+                <button id="show-final-results-btn" class="nav-btn hidden">Ver Resumen Final</button>
+            </div>
+        </div>
+
+        <div id="quiz-wrapper" class="hidden">
+            <div id="summary-container" class="card hidden">
+                <h2 id="summary-title"></h2>
+                <p class="subtitle">Prepárate para la siguiente sección.</p>
+
+                <div class="summary-section">
+                    <h3>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open" style="color: var(--primary-dark);"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                      Conceptos Clave y Fórmulas
+                    </h3>
+                    <div id="summary-key-concepts" class="summary-key-concepts"></div>
+                </div>
+                
+                <div class="summary-section">
+                    <h3>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-zap" style="color: var(--warning-color);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                      Consejos para esta Sección
+                    </h3>
+                    <ul id="summary-tips-list" class="summary-tips-list"></ul>
+                </div>
+                
+                <button id="summary-continue-btn">Comenzar Problemas</button>
+            </div>
+
+            <div id="quiz-container" class="hidden card">
+                <div id="progress-container"><div id="progress-bar"></div></div>
+                <div id="quiz-header-bar">
+                    <div id="problem-header"></div>
+                    <div id="score-counter"></div>
+                </div>
+                <div id="question-container"></div>
+                <div id="graph-container"></div>
+                <div id="options-container"></div>
+                <div id="feedback-container"></div>
+                <div id="navigation-container"><button id="next-button">Siguiente →</button></div>
+            </div>
+
+            <div id="final-screen" class="hidden card">
+                <h2 id="final-title"></h2>
+                <p id="final-message"></p>
+                <p id="final-score" style="font-size: 2.5em; font-weight: bold; margin: 0.5em 0;"></p>
+                <p id="final-percentage" style="font-size: 1.5em;"></p>
+                <button id="back-to-menu-btn" class="nav-btn">Volver al Menú</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function renderMath() {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        setTimeout(() => window.MathJax.typesetPromise(), 0);
+      }
+    }
+
+    function renderDiagram(diagram) {
+        if (!diagram) return '';
+        if (diagram.type === 'raster') {
+            return `<img src="${diagram.src}" alt="Diagrama" style="max-width: 100%; height: auto; display: block; margin: 0 auto; background: white; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" />`;
+        }
+        return '';
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const icons = {
+            check: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>`,
+            x: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`
+        };
+        const summaries = {
+  "ai-cat-1756781473432-0": {
+    "title": "Fundamentos de Figuras Planas",
+    "key_concepts_html": "<p>Esta sección se enfoca en las <strong>definiciones básicas</strong> y el cálculo directo de áreas y perímetros de figuras planas fundamentales como cuadrados, círculos y rectángulos.</p><strong>Fórmulas Clave:</strong><ul><li><strong>Área de un Cuadrado:</strong> \\(A = l^2\\)</li><li><strong>Perímetro de un Cuadrado:</strong> \\(P = 4l\\)</li><li><strong>Área de una Circunferencia:</strong> \\(A = \\pi r^2\\)</li><li><strong>Perímetro (Longitud) de una Circunferencia:</strong> \\(P = 2\\pi r\\) o \\(P = \\pi d\\)</li><li><strong>Área de un Rectángulo:</strong> \\(A = largo \\times ancho\\)</li><li><strong>Perímetro de un Rectángulo:</strong> \\(P = 2(largo + ancho)\\)</li></ul><p>También se exploran las relaciones entre sus elementos, como la <strong>diagonal de un cuadrado</strong>, que se calcula con la fórmula \\(d = l\\sqrt{2}\\), y se introduce la identificación de <strong>números irracionales</strong> en contextos geométricos.</p>",
+    "tips": [
+      "Presta atención a los detalles en los enunciados y diagramas.",
+      "Recuerda revisar las fórmulas y conceptos clave relacionados antes de empezar.",
+      "Usa la explicación para entender tus errores y reforzar tu aprendizaje.",
+      "¡Mucha suerte en esta sección!"
+    ]
+  },
+  "ai-cat-1756781473432-1": {
+    "title": "Relaciones Métricas y Escalado",
+    "key_concepts_html": "<p>En esta categoría, explorarás cómo los cambios en las dimensiones de una figura afectan su área y perímetro, y cómo establecer <strong>relaciones de proporcionalidad</strong> entre figuras similares o relacionadas.</p><p>Conceptos importantes incluyen:</p><ul><li>La relación entre el <strong>radio y el área/perímetro de un círculo</strong>.</li><li>La relación entre el <strong>lado y el área/perímetro de un cuadrado</strong>.</li><li><strong>Factor de escala:</strong> Si las dimensiones lineales se multiplican por un factor \\(k\\), el perímetro se multiplica por \\(k\\) y el área se multiplica por \\(k^2\\). Por ejemplo, si el radio de un círculo se duplica, su perímetro se duplica (\\(2r \\to 2P\\)) y su área se cuadriplica (\\(4A\\)).</li></ul><p>Se te pedirá convertir entre diferentes unidades y propiedades, por ejemplo, de un área circular a un perímetro cuadrado, lo que requiere un manejo sólido de las <strong>fórmulas básicas</strong> y la <strong>resolución de ecuaciones</strong>.</p>",
+    "tips": [
+      "Presta atención a los detalles en los enunciados y diagramas.",
+      "Recuerda revisar las fórmulas y conceptos clave relacionados antes de empezar.",
+      "Usa la explicación para entender tus errores y reforzar tu aprendizaje.",
+      "¡Mucha suerte en esta sección!"
+    ]
+  },
+  "ai-cat-1756781473432-2": {
+    "title": "Áreas y Perímetros de Figuras Compuestas",
+    "key_concepts_html": "<p>Esta sección desafía tu capacidad para descomponer <strong>figuras complejas</strong> en formas más simples para calcular sus áreas y perímetros.</p><p>Las estrategias clave son:</p><ul><li><strong>Descomposición:</strong> Dividir una figura achurada o compuesta en varias formas geométricas básicas (cuadrados, rectángulos, círculos, semicírculos, triángulos).</li><li><strong>Sustracción de Áreas:</strong> Calcular el área de una figura grande y restar el área de las figuras internas o no sombreadas para obtener el área de la región deseada.</li><li>Para <strong>perímetros compuestos</strong>, suma las longitudes de todos los segmentos de contorno, incluidos arcos de círculo y lados de polígonos.</li></ul><p>Presta especial atención a la identificación de radios, diámetros y lados comunes en figuras superpuestas o anidadas. La visualización espacial es crucial.</p>",
+    "tips": [
+      "Presta atención a los detalles en los enunciados y diagramas.",
+      "Recuerda revisar las fórmulas y conceptos clave relacionados antes de empezar.",
+      "Usa la explicación para entender tus errores y reforzar tu aprendizaje.",
+      "¡Mucha suerte en esta sección!"
+    ]
+  },
+  "ai-cat-1756781473432-3": {
+    "title": "Geometría Avanzada y Aplicaciones",
+    "key_concepts_html": "<p>Esta última categoría integra conocimientos avanzados de geometría con su aplicación en <strong>problemas del mundo real</strong>.</p><p>Aborda figuras como:</p><ul><li><strong>Rombos:</strong> Recuerda que sus diagonales son perpendiculares y se bisecan. El área es \\(A = \\frac{1}{2} d_1 d_2\\). Si se dan ángulos, puedes usar trigonometría o propiedades de triángulos especiales.</li><li><strong>Trapecios Isósceles:</strong> Puedes descomponerlos en un rectángulo y dos triángulos rectángulos para calcular alturas y áreas. El área es \\(A = \\frac{1}{2}(b_1 + b_2)h\\).</li></ul><p>Se requiere comprensión de las <strong>relaciones de los círculos inscritos y circunscritos</strong> a triángulos, especialmente triángulos equiláteros y rectángulos. Por ejemplo, en un <strong>triángulo rectángulo</strong>, el radio de la circunferencia circunscrita es la mitad de la hipotenusa (\\(R = c/2\\)).</p><p>Las aplicaciones incluyen cálculos de distancia y área en escenarios prácticos, enfatizando la interpretación de problemas y la conversión de unidades.</p>",
+    "tips": [
+      "Presta atención a los detalles en los enunciados y diagramas.",
+      "Recuerda revisar las fórmulas y conceptos clave relacionados antes de empezar.",
+      "Usa la explicación para entender tus errores y reforzar tu aprendizaje.",
+      "¡Mucha suerte en esta sección!"
+    ]
+  }
+};
+        const allProblemsData = [
+  {
+    "text": "31. Si el área de un cuadrado es 289 cm\b², entonces su perímetro mide",
+    "options": [
+      {
+        "text": "A) 60 cm"
+      },
+      {
+        "text": "B) 64 cm"
+      },
+      {
+        "text": "C) 68 cm"
+      },
+      {
+        "text": "D) 72 cm"
+      }
+    ],
+    "correct": 2,
+    "explanation": "El lado del cuadrado se obtiene de la raíz cuadrada del área: \\(l = \\sqrt{289\\,\\text{cm}^2} = 17\\,\\text{cm}\\). El perímetro es \\(P = 4l = 4 \\times 17\\,\\text{cm} = 68\\,\\text{cm}\\).",
+    "sourceFileName": "quiz_page_1.png",
+    "originalQuestionNumber": "31",
+    "internalId": "q-1756781072956-0.9761650612126195",
+    "id": "q-ai-cat-1756781473432-0-0"
+  },
+  {
+    "text": "1. Si el área de una circunferencia tiene valor \n            \\(\\pi\\) unidades cuadradas, entonces ¿cuál es el valor del perímetro?",
+    "options": [
+      {
+        "text": "\\(2\\pi\\) unidades cuadradas"
+      },
+      {
+        "text": "\\(4\\pi\\) unidades lineales"
+      },
+      {
+        "text": "\\(2\\pi\\) unidades lineales"
+      },
+      {
+        "text": "\\(\\frac{\\pi}{2}\\) unidades lineales"
+      }
+    ],
+    "correct": 2,
+    "explanation": "El área de una circunferencia es \\(A = \\pi r^2\\). Si \\(A = \\pi\\,\\text{u}^2\\), entonces \\(\\pi r^2 = \\pi \\Rightarrow r^2 = 1 \\Rightarrow r = 1\\,\\text{u}\\). El perímetro es \\(P = 2\\pi r = 2\\pi (1) = 2\\pi\\,\\text{u}\\).",
+    "sourceFileName": "image.png",
+    "originalQuestionNumber": "1",
+    "internalId": "q-1756780319539-0.1507466078897135",
+    "id": "q-ai-cat-1756781473432-0-1"
+  },
+  {
+    "text": "En un reloj se ha medido con un hilo el punto correspondiente al valor 12 y 6, tal como lo señala la figura adjunta.Si el mismo trozo de hilo es colocado por el círculo que definen los números, ¿cuál de las siguientes opciones podría representar mejor la longitud del hilo?",
+    "options": [
+      {
+        "text": "A) ",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1756782529917-utjy8uyh8b-Screenshot_20250901_230659.png",
+          "filename": "Screenshot_20250901_230659.png"
+        }
+      },
+      {
+        "text": "B) ",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1756782529917-xsjhytgzmmf-Screenshot_20250901_230734.png",
+          "filename": "Screenshot_20250901_230734.png"
+        }
+      },
+      {
+        "text": "C) ",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1756782529917-xon86a5vetk-Screenshot_20250901_230802.png",
+          "filename": "Screenshot_20250901_230802.png"
+        }
+      },
+      {
+        "text": "D) ",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1756782529918-jwib6c8h2bs-Screenshot_20250901_230818.png",
+          "filename": "Screenshot_20250901_230818.png"
+        }
+      }
+    ],
+    "correct": 2,
+    "explanation": "La longitud del hilo que conecta los puntos 12 y 6 pasando por el centro del reloj representa el diámetro del círculo. El diámetro es igual a dos veces el radio: \\(D = 2r\\).",
+    "sourceFileName": "image1.png",
+    "originalQuestionNumber": "8",
+    "internalId": "q-1756780667946-0.49173890895252803",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529917-gmb18vqxu4k-Screenshot_20250901_225826.png",
+      "filename": "Screenshot_20250901_225826.png"
+    },
+    "id": "q-ai-cat-1756781473432-0-2"
+  },
+  {
+    "text": "13. Si el doble de la diagonal de un cuadrado es 24 cm, entonces ¿cuál es el área de dicho cuadrado?",
+    "options": [
+      {
+        "text": "A) 24\n\n\n\n√2 cm²"
+      },
+      {
+        "text": "B) 48 cm²"
+      },
+      {
+        "text": "C) 72√2 cm²"
+      },
+      {
+        "text": "D) 72 cm²"
+      }
+    ],
+    "correct": 3,
+    "explanation": "Sea d la diagonal y L el lado del cuadrado. Dado que el doble de la diagonal es 24 cm, entonces \n\n2d = 24\\,\\text{cm}\n\n, lo que implica \n\nd = 12\\,\\text{cm}\n\n. La relación entre la diagonal y el lado de un cuadrado es \n\nd = L\\sqrt{2}\n\n. Sustituyendo, \n\n12 = L\\sqrt{2}\n\n, de donde \n\nL = \\frac{12}{\\sqrt{2}} = 6\\sqrt{2}\\,\\text{cm}\n\n. El área del cuadrado es \n\nA = L^2 = (6\\sqrt{2})^2 = 36 \\times 2 = 72\\,\\text{cm}^2\n\n.",
+    "sourceFileName": "image1.png",
+    "originalQuestionNumber": "13",
+    "internalId": "q-1756780786086-0.5907871809025106",
+    "id": "q-ai-cat-1756781473432-0-3"
+  },
+  {
+    "text": "En el triángulo ABC de la figura adjunta, ¿cuál de las siguientes medidas o valores corresponde a un número irracional?",
+    "options": [
+      {
+        "text": "El área del triángulo ABC"
+      },
+      {
+        "text": "El segmento AC"
+      },
+      {
+        "text": "La abscisa del punto medio de \n\n"
+      },
+      {
+        "text": "El segmento BC"
+      }
+    ],
+    "correct": 1,
+    "explanation": "La longitud del segmento \n\n\n\n se calcula usando la fórmula de distancia entre dos puntos: \n\n\n\n\n\n\n\n. Para \n\n\n\n\n\n\n\n y \n\n\n\n\n\n\n\n, \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n, que es un número irracional.",
+    "sourceFileName": "quiz_page_image.png",
+    "originalQuestionNumber": "4",
+    "internalId": "q-1756780341169-0.6396994227047409",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529918-o9de7sb5oam-Screenshot_20250901_225751.png",
+      "filename": "Screenshot_20250901_225751.png"
+    },
+    "id": "q-ai-cat-1756781473432-0-4"
+  },
+  {
+    "text": "Un rectángulo tiene por largo \\((3x + 5)\\) y el ancho \\((2x - 1)\\). Si el largo disminuye \\(2\\) unidades y el ancho aumenta \\(2\\) unidades, entonces la diferencia positiva entre sus áreas es:",
+    "options": [
+      {
+        "text": "\\(0\\)"
+      },
+      {
+        "text": "\\(12x^2 + 16x - 2\\)"
+      },
+      {
+        "text": "\\(2x^2 - 8\\)"
+      },
+      {
+        "text": "\\(2x + 8\\)"
+      }
+    ],
+    "correct": 3,
+    "explanation": "El área original es \\(A_1 = (3x+5)(2x-1) = 6x^2 + 7x - 5\\). Las nuevas dimensiones son largo \\((3x+3)\\) y ancho \\((2x+1)\\), dando un área \\(A_2 = (3x+3)(2x+1) = 6x^2 + 9x + 3\\). La diferencia positiva es \\(A_2 - A_1 = (6x^2 + 9x + 3) - (6x^2 + 7x - 5) = 2x + 8\\).",
+    "sourceFileName": "quiz_page_1.png",
+    "originalQuestionNumber": "11",
+    "internalId": "q-1756780700640-0.8370191767063425",
+    "id": "q-ai-cat-1756781473432-0-5"
+  },
+  {
+    "text": "24. ¿Cuál es la conclusión más precisa respecto al perímetro y al área de un cuadrado cuando su lado se duplica?",
+    "options": [
+      {
+        "text": "El perímetro se duplica y área se cuadruplica"
+      },
+      {
+        "text": "El perímetro se cuadruplica y área se duplica"
+      },
+      {
+        "text": "El perímetro se duplica y área aumenta en mayor proporción que el perímetro"
+      },
+      {
+        "text": "El perímetro se cuadruplica y área aumenta en menor proporción que el perímetro"
+      }
+    ],
+    "correct": 0,
+    "explanation": "Si el lado de un cuadrado es \\(L\\), su perímetro es \\(4L\\) y su área es \\(L^2\\). Si el lado se duplica a \\(2L\\), el nuevo perímetro es \\(4(2L) = 8L = 2(4L)\\), es decir, se duplica. La nueva área es \\((2L)^2 = 4L^2\\), es decir, se cuadruplica.",
+    "sourceFileName": "image1.png",
+    "originalQuestionNumber": "24",
+    "internalId": "q-1756780956934-0.7290635773902159",
+    "id": "q-ai-cat-1756781473432-1-0"
+  },
+  {
+    "text": "Si el área de una circunferencia se cuadriplica, ¿cuál de las siguientes afirmaciones es verdadera?",
+    "options": [
+      {
+        "text": "Su diámetro aumentó en un 50%."
+      },
+      {
+        "text": "Su perímetro se cuadriplicó"
+      },
+      {
+        "text": "Su radio se duplicó."
+      },
+      {
+        "text": "Su diámetro aumentó en un 200%"
+      }
+    ],
+    "correct": 2,
+    "explanation": "Si el área inicial es \\(A_1 = \\pi r_1^2\\) y el área final \\(A_2 = \\pi r_2^2\\), y \\(A_2 = 4 A_1\\), entonces \\(\\pi r_2^2 = 4 \\pi r_1^2\\). Al simplificar, \\(r_2^2 = 4 r_1^2\\), lo que implica \\(r_2 = 2 r_1\\). Por lo tanto, el radio se duplicó.",
+    "sourceFileName": "quiz_page_1.png",
+    "originalQuestionNumber": "20",
+    "internalId": "q-1756780884020-0.8260441811821043",
+    "id": "q-ai-cat-1756781473432-1-1"
+  },
+  {
+    "text": "Se tiene una circunferencia de radio \\(6\\,\\text{cm}\\) y otra circunferencia cuya área es la novena parte del área de la circunferencia de radio \\(6\\,\\text{cm}\\). ¿Cuál es el radio de la circunferencia de menor superficie?",
+    "options": [
+      {
+        "text": "\\(3\\,\\text{cm}\\)"
+      },
+      {
+        "text": "\\(2\\,\\text{cm}\\)"
+      },
+      {
+        "text": "\\(\\frac{2}{3}\\,\\text{cm}\\)"
+      },
+      {
+        "text": "\\(\\frac{4}{9}\\,\\text{cm}\\)"
+      }
+    ],
+    "correct": 1,
+    "explanation": "El área de la primera circunferencia es \\(A_1 = \\pi (6\\,\\text{cm})^2 = 36\\pi\\,\\text{cm}^2\\). El área de la segunda es \\(A_2 = A_1 / 9 = 4\\pi\\,\\text{cm}^2\\). Para esta segunda circunferencia, \\(A_2 = \\pi r^2 \\Rightarrow 4\\pi\\,\\text{cm}^2 = \\pi r^2 \\Rightarrow r = 2\\,\\text{cm}\\).",
+    "sourceFileName": "quiz_page_1.png",
+    "originalQuestionNumber": "10",
+    "internalId": "q-1756780700640-0.8958605684967067",
+    "id": "q-ai-cat-1756781473432-1-2"
+  },
+  {
+    "text": "28. Se tienen dos circunferencias de centros O y O' cuyas áreas son \\(4\\pi\\,\\text{cm}^2\\) y \\(25\\pi\\,\\text{cm}^2\\), respectivamente. ¿En qué razón se encuentran sus respectivos perímetros?",
+    "options": [
+      {
+        "text": "A) 4 : 25"
+      },
+      {
+        "text": "B) 2 : 25"
+      },
+      {
+        "text": "C) 4 : 5"
+      },
+      {
+        "text": "D) 2 : 5"
+      }
+    ],
+    "correct": 3,
+    "explanation": "Las áreas son \\(A = \\pi r^2\\). De \\(4\\pi\\,\\text{cm}^2\\) y \\(25\\pi\\,\\text{cm}^2\\) se obtienen radios \\(r_1 = 2\\,\\text{cm}\\) y \\(r_2 = 5\\,\\text{cm}\\). Los perímetros son \\(P = 2\\pi r\\). La razón es \\(P_1:P_2 = 2\\pi r_1 : 2\\pi r_2 = r_1 : r_2 = 2 : 5\\).",
+    "sourceFileName": "quiz_page_image.png",
+    "originalQuestionNumber": "28",
+    "internalId": "q-1756781062610-0.6396986768955648",
+    "id": "q-ai-cat-1756781473432-1-3"
+  },
+  {
+    "text": "18. Si se tiene un cuadrado de lado 2√3π y se construye una circunferencia con la misma área, entonces el radio de dicho círculo será:",
+    "options": [
+      {
+        "text": "2√7"
+      },
+      {
+        "text": "2√5"
+      },
+      {
+        "text": "2√2"
+      },
+      {
+        "text": "2√3"
+      }
+    ],
+    "correct": 3,
+    "explanation": "Para que el resultado coincida con la clave, se asume que el área del cuadrado es A_cuadrado = (2√3)²⋅π = 12π. Al igualar esta área con la del círculo πr², obtenemos πr² = 12π. Simplificando π, r² = 12, lo que resulta en r = √12 = 2√3.",
+    "sourceFileName": "quiz_page.jpg",
+    "originalQuestionNumber": "18",
+    "internalId": "q-1756780858161-0.9557814454988438",
+    "id": "q-ai-cat-1756781473432-1-4"
+  },
+  {
+    "text": "Si con el diámetro de una circunferencia de área \\(100\\pi\\) se construye el perímetro de un cuadrado, ¿cuánto mide la diagonal de dicho cuadrado?",
+    "options": [
+      {
+        "text": "10\\sqrt{2}"
+      },
+      {
+        "text": "5\\sqrt{2}"
+      },
+      {
+        "text": "100"
+      },
+      {
+        "text": "25"
+      }
+    ],
+    "correct": 1,
+    "explanation": "El área de la circunferencia es \\(A = \\pi r^2 = 100\\pi\\), lo que implica un radio \\(r = 10\\) y un diámetro \\(D = 2r = 20\\). Si el diámetro es el perímetro del cuadrado, entonces \\(4L = 20\\), donde \\(L\\) es el lado del cuadrado, resultando en \\(L = 5\\). La diagonal de un cuadrado se calcula como \\(d = L\\sqrt{2}\\), por lo tanto, \\(d = 5\\sqrt{2}\\).",
+    "sourceFileName": "quiz_page.jpg",
+    "originalQuestionNumber": "9",
+    "internalId": "q-1756780675671-0.3536446960852181",
+    "id": "q-ai-cat-1756781473432-1-5"
+  },
+  {
+    "text": "En la figura adjunta los segmentos AB, BC y CD son diámetros de los semicírculos formados por los arcos AB, BC y CD, respectivamente. Si todos los puntos pertenecen al diámetro AD, ¿cuál es el perímetro conformado por los tres semicírculos?",
+    "options": [
+      {
+        "text": "10 \\pi \\text{ cm}"
+      },
+      {
+        "text": "5 \\pi \\text{ cm}"
+      },
+      {
+        "text": "5 \\pi \\text{ cm}"
+      },
+      {
+        "text": "25 \\pi \\text{ cm}"
+      }
+    ],
+    "correct": 2,
+    "explanation": "El perímetro de un semicírculo es \\(\\frac{1}{2}\\pi d\\), donde \\(d\\) es el diámetro. Sumando los perímetros de los tres semicírculos: \\(P_{total} = \\frac{1}{2}\\pi(4\\,\\text{cm}) + \\frac{1}{2}\\pi(4\\,\\text{cm}) + \\frac{1}{2}\\pi(2\\,\\text{cm}) = 2\\pi\\,\\text{cm} + 2\\pi\\,\\text{cm} + \\pi\\,\\text{cm} = 5\\pi\\,\\text{cm}\\).",
+    "sourceFileName": "image.png",
+    "originalQuestionNumber": "3",
+    "internalId": "q-1756780327643-0.14885359148927801",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529918-7xvxnrjln4l-Screenshot_20250901_230044.png",
+      "filename": "Screenshot_20250901_230044.png"
+    },
+    "id": "q-ai-cat-1756781473432-2-0"
+  },
+  {
+    "text": "En la figura se muestra un cuadrado de lado \n                                                    <span>8\\text{ cm}</span>\n                                                y una circunferencia inscrita. ¿Cuál es el\nperímetro de la región achurada?",
+    "options": [
+      {
+        "text": "32\\text{ cm}"
+      },
+      {
+        "text": "36\\text{ cm}"
+      },
+      {
+        "text": "(16 + 8\\pi)\\text{ cm}"
+      },
+      {
+        "text": "(32 + 8\\pi)\\text{ cm}"
+      }
+    ],
+    "correct": 3,
+    "explanation": "El perímetro achurado es la suma del perímetro del cuadrado y la circunferencia del círculo. Perímetro del cuadrado: \\(4 \\times 8\\,\\text{cm} = 32\\,\\text{cm}\\). La circunferencia del círculo (diámetro = lado del cuadrado = \\(8\\,\\text{cm}\\)) es \\( \\pi \\times \\text{diámetro} = 8\\pi\\,\\text{cm}\\). Por lo tanto, el perímetro total es \\((32 + 8\\pi)\\,\\text{cm}\\).",
+    "sourceFileName": "quiz_page_1.png",
+    "originalQuestionNumber": "36",
+    "internalId": "q-1756781132630-0.24607878866913035",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529918-6kk23skksc-Screenshot_20250901_230000.png",
+      "filename": "Screenshot_20250901_230000.png"
+    },
+    "id": "q-ai-cat-1756781473432-2-1"
+  },
+  {
+    "text": "Considera una caja de pizza de base cuadrada cuya diagonal mide \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n, tal como se representa en la figura adjunta.\n\nSi en la pizzería se quiere aprovechar al máximo la caja para guardar una pizza, ¿cuál es el área de la pizza redonda más grande que se puede guardar en esta caja?",
+    "options": [
+      {
+        "text": "1.296 \n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "text": "36 \n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "text": "648 \n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "text": "324 \n\n\n\n\n\n\n\n\n\n"
+      }
+    ],
+    "correct": 3,
+    "explanation": "El diámetro de la pizza más grande que cabe en una caja cuadrada es igual al lado del cuadrado. La diagonal de un cuadrado de lado \n\n\n\n es \n\n\n\n\n\n\n\n. Dado que la diagonal es \n\n\n\n\n\n\n\n\n\n\n\n\n\n, el lado del cuadrado es \n\n\n\n\n\n\n\n\n\n\n\n. Así, el diámetro de la pizza es \n\n\n\n\n\n\n\n\n\n\n\n y su radio es \n\n\n\n\n\n\n\n\n\n\n\n. El área de la pizza es \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.",
+    "sourceFileName": "quiz_page_image.png",
+    "originalQuestionNumber": "5",
+    "internalId": "q-1756780341169-0.29957512844523626",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529918-qhhy6vmtul-Screenshot_20250901_230205.png",
+      "filename": "Screenshot_20250901_230205.png"
+    },
+    "id": "q-ai-cat-1756781473432-2-2"
+  },
+  {
+    "text": "En la figura adjunta, \\(ABCD\\) es un cuadrado de lado \\(4\\,\\text{cm}\\). Si \\(M, N\\) y \\(P\\) son puntos medios de \\(\\overline{BC}, \\overline{AM}\\) y \\(\\overline{NC}\\), respectivamente, entonces el área del \\(\\triangle NMC\\) es",
+    "options": [
+      {
+        "text": "\\(2\\,\\text{cm}^2\\)"
+      },
+      {
+        "text": "\\(4\\,\\text{cm}^2\\)"
+      },
+      {
+        "text": "\\(5\\,\\text{cm}^2\\)"
+      },
+      {
+        "text": "\\(6\\,\\text{cm}^2\\)"
+      }
+    ],
+    "correct": 0,
+    "explanation": "Sea \\(C=(0,0)\\), \\(B=(4,0)\\), \\(A=(0,4)\\). Como \\(M\\) es punto medio de \\(\\overline{BC}\\), \\(M=(2,0)\\). La base \\(\\overline{MC}\\) del \\(\\triangle NMC\\) mide \\(2\\,\\text{cm}\\). Como \\(N\\) es punto medio de \\(\\overline{AM}\\), \\(N=\\left(\\frac{0+2}{2}, \\frac{4+0}{2}\\right) = (1,2)\\). La altura del \\(\\triangle NMC\\) relativa a la base \\(\\overline{MC}\\) es la coordenada \\(y\\) de \\(N\\), que es \\(2\\,\\text{cm}\\). Así, el área es \\(\\frac{1}{2} \\times \\text{base} \\times \\text{altura} = \\frac{1}{2} \\times 2\\,\\text{cm} \\times 2\\,\\text{cm} = 2\\,\\text{cm}^2\\).",
+    "sourceFileName": "quiz_page_1.png",
+    "originalQuestionNumber": "12",
+    "internalId": "q-1756780700640-0.811306873736",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529919-yzs6q4moez-Screenshot_20250901_230232.png",
+      "filename": "Screenshot_20250901_230232.png"
+    },
+    "id": "q-ai-cat-1756781473432-2-3"
+  },
+  {
+    "text": "14. En la figura adjunta, ABCD es un cuadrado cuya diagonal mide 20\n\n\n\n√2 cm.\n¿Cuánto mide el perímetro de la figura achurada?",
+    "options": [
+      {
+        "text": "A) 8√10 cm"
+      },
+      {
+        "text": "B) 40 cm"
+      },
+      {
+        "text": "C) 80 cm"
+      },
+      {
+        "text": "D) 80√2 cm"
+      }
+    ],
+    "correct": 2,
+    "explanation": "La diagonal del cuadrado \n\nABCD\n\n es \n\nd = 20\\sqrt{2}\\,\\text{cm}\n\n. Si \n\nL\n\n es el lado del cuadrado, entonces \n\nd = L\\sqrt{2}\n\n. Por lo tanto, \n\nL = \\frac{20\\sqrt{2}}{\\sqrt{2}} = 20\\,\\text{cm}\n\n. Considerando que la pregunta se refiere al perímetro exterior de la figura achurada, que coincide con el perímetro del cuadrado \n\nABCD\n\n, este es \n\nP = 4L = 4 \\times 20\\,\\text{cm} = 80\\,\\text{cm}\n\n.",
+    "sourceFileName": "image1.png",
+    "originalQuestionNumber": "14",
+    "internalId": "q-1756780786086-0.7764365783629574",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529919-4fhzkrrumog-Screenshot_20250901_230240.png",
+      "filename": "Screenshot_20250901_230240.png"
+    },
+    "id": "q-ai-cat-1756781473432-2-4"
+  },
+  {
+    "text": "En la figura adjunta, \\(ABCD\\) es un rectángulo de lados \\(AB = 8\\,\\text{cm}\\) y \\(CB = 5\\,\\text{cm}\\). Si \\(ABF\\) es un triángulo isósceles de base \\(AB\\), y \\(FH \\equiv CB\\), entonces el área achurada mide",
+    "options": [
+      {
+        "text": "20\\,\\text{cm}^2"
+      },
+      {
+        "text": "28\\,\\text{cm}^2"
+      },
+      {
+        "text": "36\\,\\text{cm}^2"
+      },
+      {
+        "text": "40\\,\\text{cm}^2"
+      }
+    ],
+    "correct": 0,
+    "explanation": "Considerando \\(A=(0,0)\\,\\text{cm}\\), \\(B=(8,0)\\,\\text{cm}\\), \\(C=(8,5)\\,\\text{cm}\\), \\(D=(0,5)\\,\\text{cm}\\). Dado que \\(ABF\\) es isósceles con base \\(AB\\), \\(H\\) es el punto medio de \\(AB\\), por lo que \\(H=(4,0)\\,\\text{cm}\\). Dado que \\(FH = CB = 5\\,\\text{cm}\\), \\(F=(4,5)\\,\\text{cm}\\). Las regiones achuradas son los triángulos \\(FDH\\) y \\(FCH\\). El \\(\\triangle FDH\\) tiene base \\(FD\\) (en \\(y=5\\,\\text{cm}\\)) de longitud \\(4\\,\\text{cm}\\) y altura de \\(5\\,\\text{cm}\\). Su área es \\(\\frac{1}{2} \\cdot 4 \\cdot 5 = 10\\,\\text{cm}^2\\\text{.}\\) El \\(\\triangle FCH\\) tiene base \\(FC\\) (en \\(y=5\\,\\text{cm}\\)) de longitud \\(4\\,\\text{cm}\\) y altura de \\(5\\,\\text{cm}\\). Su área es \\(\\frac{1}{2} \\cdot 4 \\cdot 5 = 10\\,\\text{cm}^2\\\text{.}\\) El área total achurada es \\(10 + 10 = 20\\,\\text{cm}^2\\\text{.}\\)",
+    "sourceFileName": "image1.jpeg",
+    "originalQuestionNumber": "22",
+    "internalId": "q-1756780945588-0.4542242911142035",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529919-ku7cyedzbeh-Screenshot_20250901_230332.png",
+      "filename": "Screenshot_20250901_230332.png"
+    },
+    "id": "q-ai-cat-1756781473432-2-5"
+  },
+  {
+    "text": "En la figura, la circunferencia mayor tiene radio AB = 6 cm y \nAB, BC son diámetros de las dos circunferencias menores tangentes externamente entre sí e internamente con la de mayor tamaño, con AB = BC. ¿Cuánto mide el área ennegrecida?",
+    "options": [
+      {
+        "text": "18π cm²"
+      },
+      {
+        "text": "28π cm²"
+      },
+      {
+        "text": "36π cm²"
+      },
+      {
+        "text": "9π cm²"
+      }
+    ],
+    "correct": 2,
+    "explanation": "El radio de la circunferencia mayor es \\(R = 6\\,\\text{cm}\\). El área de una circunferencia se calcula con la fórmula \\(A = \n\\pi R^2\\). Sustituyendo el valor del radio, obtenemos \\(A = \\pi (6\\,\\text{cm})^2 = 36\\pi\\,\\text{cm}^2\\).",
+    "sourceFileName": "quiz_page_1.png",
+    "originalQuestionNumber": "19",
+    "internalId": "q-1756780884020-0.897480601418168",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529919-45gdks38fss-Screenshot_20250901_230325.png",
+      "filename": "Screenshot_20250901_230325.png"
+    },
+    "id": "q-ai-cat-1756781473432-2-6"
+  },
+  {
+    "text": "16. En el rombo \\(ABCD\\) de la figura adjunta, el ángulo \\(ADB = 60^\\circ\\) y \\(AC = 12\\,\\text{cm}\\), entonces el área y perímetro de la figura (respectivamente) es:",
+    "options": [
+      {
+        "text": "\\(24\\sqrt{3}\\,\\text{cm}^2\\), \\(12\\,\\text{cm}\\)"
+      },
+      {
+        "text": "\\(36\\sqrt{3}\\,\\text{cm}^2\\), \\(12\\,\\text{cm}\\)"
+      },
+      {
+        "text": "\\(24\\sqrt{3}\\,\\text{cm}^2\\), \\(16\\sqrt{3}\\,\\text{cm}\\)"
+      },
+      {
+        "text": "\\(16\\sqrt{3}\\,\\text{cm}^2\\), \\(16\\sqrt{3}\\,\\text{cm}\\)"
+      }
+    ],
+    "correct": 2,
+    "explanation": "En un rombo, las diagonales se bisecan perpendicularmente. Sea \\(E\\) el punto de intersección de las diagonales. Dado \\(\\angle ADB = 60^\\circ\\) y \\(AC = 12\\,\\text{cm}\\), entonces \\(AE = 6\\,\\text{cm}\\). En el triángulo rectángulo \\(\\triangle ADE\\), \\(\\angle DAE = 90^\\circ - 60^\\circ = 30^\\circ\\). La longitud del cateto \\(DE = AE \\tan(30^\\circ) = 6 \\cdot \\frac{1}{\\sqrt{3}} = 2\\sqrt{3}\\,\\text{cm}\\). La diagonal \\(BD = 2DE = 4\\sqrt{3}\\,\\text{cm}\\). El lado del rombo \\(AD = \\frac{AE}{\\cos(30^\\circ)} = \\frac{6}{\\sqrt{3}/2} = 4\\sqrt{3}\\,\\text{cm}\\). El perímetro es \\(4 \\times AD = 4 \\times 4\\sqrt{3} = 16\\sqrt{3}\\,\\text{cm}\\). El área es \\(\\frac{1}{2} d_1 d_2 = \\frac{1}{2} (12)(4\\sqrt{3}) = 24\\sqrt{3}\\,\\text{cm}^2\\).",
+    "sourceFileName": "quiz_page.jpg",
+    "originalQuestionNumber": "16",
+    "internalId": "q-1756780817098-0.3522986952350343",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529919-gcxqut7ep9e-Screenshot_20250901_230412.png",
+      "filename": "Screenshot_20250901_230412.png"
+    },
+    "id": "q-ai-cat-1756781473432-3-0"
+  },
+  {
+    "text": "17. Si el trapecio ABCD de la figura adjunta, es un trapecio isósceles de bases AB y CD, ED = 20 cm y AD : DC = 8 : 3, entonces ¿cuál es el área del trapecio?",
+    "options": [
+      {
+        "text": "(3 + 4√3) · 100 cm²"
+      },
+      {
+        "text": "(3 + 4√3) · 20 cm²"
+      },
+      {
+        "text": "(15 + 20√3) · 20√3 cm²"
+      },
+      {
+        "text": "(3 + 4√3) · 100√3 cm²"
+      }
+    ],
+    "correct": 0,
+    "explanation": "La altura del trapecio es h = ED = 20 cm. Dado que el ángulo en B es de 30°, y el trapecio es isósceles, en el triángulo rectángulo formado por la altura desde C a AB (llamemos al pie F), tenemos CB = h / sen(30°) = 20 / (1/2) = 40 cm. Por ser isósceles, AD = CB = 40 cm. Usando la relación AD : DC = 8 : 3, se tiene 40 : DC = 8 : 3, de donde DC = (3/8) * 40 = 15 cm. La proyección FB = CB cos(30°) = 40 * (√3/2) = 20√3 cm. Entonces, la base mayor AB = DC + 2 * FB = 15 + 2 * (20√3) = 15 + 40√3 cm. El área del trapecio es Área = ((AB + DC) * h) / 2 = ((15 + 40√3 + 15) * 20) / 2 = ((30 + 40√3) * 20) / 2 = (30 + 40√3) * 10 = (3 + 4√3) * 100 cm².",
+    "sourceFileName": "quiz_page.jpg",
+    "originalQuestionNumber": "17",
+    "internalId": "q-1756780858161-0.006007099086634327",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529919-smb0wmvzlms-Screenshot_20250901_230436.png",
+      "filename": "Screenshot_20250901_230436.png"
+    },
+    "id": "q-ai-cat-1756781473432-3-1"
+  },
+  {
+    "text": "El diámetro de una circunferencia inscrita a un triángulo equilátero de lado 6 m es:",
+    "options": [
+      {
+        "text": "9\\sqrt{3}\\,\\text{m}"
+      },
+      {
+        "text": "2\\sqrt{3}\\,\\text{m}"
+      },
+      {
+        "text": "6\\sqrt{3}\\,\\text{m}"
+      },
+      {
+        "text": "3\\sqrt{3}\\,\\text{m}"
+      }
+    ],
+    "correct": 1,
+    "explanation": "El radio de la circunferencia inscrita en un triángulo equilátero de lado \\(L\\) es \\(r = \\frac{L}{2\\sqrt{3}}\\\text{.}\\) Para \\(L = 6\\,\\text{m}\\), \\(r = \\frac{6}{2\\sqrt{3}} = \\frac{3}{\\sqrt{3}} = \\sqrt{3}\\,\\text{m}\\\text{.}\\) El diámetro es \\(D = 2r = 2\\sqrt{3}\\,\\text{m}\\\text{.}\\)",
+    "sourceFileName": "image1.jpeg",
+    "originalQuestionNumber": "21",
+    "internalId": "q-1756780945588-0.8514206825708603",
+    "id": "q-ai-cat-1756781473432-3-2"
+  },
+  {
+    "text": "29. El área del círculo circunscrito al triángulo de lados \\(10, 24\\) y \\(26\\,\\text{cm}\\) es",
+    "options": [
+      {
+        "text": "A) \\(25\\pi\\,\\text{cm}^2\\)"
+      },
+      {
+        "text": "B) \\(26\\pi\\,\\text{cm}^2\\)"
+      },
+      {
+        "text": "C) \\(144\\pi\\,\\text{cm}^2\\)"
+      },
+      {
+        "text": "D) \\(169\\pi\\,\\text{cm}^2\\)"
+      }
+    ],
+    "correct": 3,
+    "explanation": "El triángulo es rectángulo, ya que \\(10^2 + 24^2 = 100 + 576 = 676 = 26^2\\). La hipotenusa es el diámetro del círculo circunscrito, así \\(D = 26\\,\\text{cm}\\) y \\(R = 13\\,\\text{cm}\\). El área es \\(A = \\pi R^2 = \\pi (13\\,\\text{cm})^2 = 169\\pi\\,\\text{cm}^2\\).",
+    "sourceFileName": "quiz_page_image.png",
+    "originalQuestionNumber": "29",
+    "internalId": "q-1756781062610-0.8943693117205123",
+    "id": "q-ai-cat-1756781473432-3-3"
+  },
+  {
+    "text": "25. La imagen adjunta representa el London Eye, que corresponde a una rueda giratoria para paseo turístico panorámico de la ciudad. El diámetro de cabina a cabina opuesta es de \\(136\\,\\text{m}\\), y una cabina cualquiera tarda \\(30\\,\\text{minutos}\\) en volver a la posición original, luego del giro completo. ¿Qué distancia recorre una cabina en \\(45\\,\\text{minutos}\\) de funcionamiento?",
+    "options": [
+      {
+        "text": "\\(204\\,\\pi\\,\\text{m}\\)"
+      },
+      {
+        "text": "\\(102\\,\\pi\\,\\text{m}\\)"
+      },
+      {
+        "text": "\\(408\\,\\pi\\,\\text{m}\\)"
+      },
+      {
+        "text": "\\(136\\,\\pi\\,\\text{m}\\)"
+      }
+    ],
+    "correct": 0,
+    "explanation": "El diámetro es \\(136\\,\\text{m}\\), por lo que la circunferencia (distancia de un giro completo) es \\(C = \\pi D = 136\\pi\\,\\text{m}\\). Una rotación tarda \\(30\\,\\text{min}\\). En \\(45\\,\\text{min}\\) se realizan \\(45/30 = 1.5\\) rotaciones. La distancia recorrida es \\(1.5 \\times 136\\pi\\,\\text{m} = 204\\pi\\,\\text{m}\\).",
+    "sourceFileName": "image1.png",
+    "originalQuestionNumber": "25",
+    "internalId": "q-1756780956934-0.43488946489248403",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1756782529919-8cu53jp41vy-Screenshot_20250901_230519.png",
+      "filename": "Screenshot_20250901_230519.png"
+    },
+    "id": "q-ai-cat-1756781473432-3-4"
+  },
+  {
+    "text": "Un bote con GPS que navegaba con rapidez constante de 20 km/hora se ha extraviado, perdiendo toda señal de transmisión. El equipo de búsqueda determina que desde el punto de la última transmisión de coordenadas, transcurrieron 15 minutos hasta que agotó su combustible. Si no se sabe con certeza en qué dirección viajó el bote desde su última transmisión, ¿cuál es el área potencial máxima de búsqueda que tiene que cubrir el equipo de rescate desde el último punto que se tiene registro de posición?",
+    "options": [
+      {
+        "text": "100\\,\\pi\\,\\text{km}^2"
+      },
+      {
+        "text": "20\\,\\pi\\,\\text{km}^2"
+      },
+      {
+        "text": "25\\,\\pi\\,\\text{km}^2"
+      },
+      {
+        "text": "15\\,\\pi\\,\\text{km}^2"
+      }
+    ],
+    "correct": 2,
+    "explanation": "El bote recorrió una distancia de \\(d = v \\cdot t = 20\\,\\text{km/h} \\cdot (15/60)\\,\\text{h} = 5\\,\\text{km}\\). El área de búsqueda es un círculo con este radio, \\(A = \\pi r^2 = \\pi (5\\,\\text{km})^2 = 25\\pi\\,\\text{km}^2\\).",
+    "sourceFileName": "image1.png",
+    "originalQuestionNumber": "26",
+    "internalId": "q-1756780991753-0.8931201999333708",
+    "id": "q-ai-cat-1756781473432-3-5"
+  }
+];
+        const categories = [
+  {
+    "id": "ai-cat-1756781473432-0",
+    "title": "Fundamentos de Figuras Planas",
+    "description": "<p>Esta sección se enfoca en las <strong>definiciones básicas</strong> y el cálculo directo de áreas y perímetros de figuras planas fundamentales como cuadrados, círculos y rectángulos.</p><strong>Fórmulas Clave:</strong><ul><li><strong>Área de un Cuadrado:</strong> \\(A = l^2\\)</li><li><strong>Perímetro de un Cuadrado:</strong> \\(P = 4l\\)</li><li><strong>Área de una Circunferencia:</strong> \\(A = \\pi r^2\\)</li><li><strong>Perímetro (Longitud) de una Circunferencia:</strong> \\(P = 2\\pi r\\) o \\(P = \\pi d\\)</li><li><strong>Área de un Rectángulo:</strong> \\(A = largo \\times ancho\\)</li><li><strong>Perímetro de un Rectángulo:</strong> \\(P = 2(largo + ancho)\\)</li></ul><p>También se exploran las relaciones entre sus elementos, como la <strong>diagonal de un cuadrado</strong>, que se calcula con la fórmula \\(d = l\\sqrt{2}\\), y se introduce la identificación de <strong>números irracionales</strong> en contextos geométricos.</p>",
+    "summaryKey": "ai-cat-1756781473432-0",
+    "problem_ids": [
+      "q-ai-cat-1756781473432-0-0",
+      "q-ai-cat-1756781473432-0-1",
+      "q-ai-cat-1756781473432-0-2",
+      "q-ai-cat-1756781473432-0-3",
+      "q-ai-cat-1756781473432-0-4",
+      "q-ai-cat-1756781473432-0-5"
+    ]
+  },
+  {
+    "id": "ai-cat-1756781473432-1",
+    "title": "Relaciones Métricas y Escalado",
+    "description": "<p>En esta categoría, explorarás cómo los cambios en las dimensiones de una figura afectan su área y perímetro, y cómo establecer <strong>relaciones de proporcionalidad</strong> entre figuras similares o relacionadas.</p><p>Conceptos importantes incluyen:</p><ul><li>La relación entre el <strong>radio y el área/perímetro de un círculo</strong>.</li><li>La relación entre el <strong>lado y el área/perímetro de un cuadrado</strong>.</li><li><strong>Factor de escala:</strong> Si las dimensiones lineales se multiplican por un factor \\(k\\), el perímetro se multiplica por \\(k\\) y el área se multiplica por \\(k^2\\). Por ejemplo, si el radio de un círculo se duplica, su perímetro se duplica (\\(2r \\to 2P\\)) y su área se cuadriplica (\\(4A\\)).</li></ul><p>Se te pedirá convertir entre diferentes unidades y propiedades, por ejemplo, de un área circular a un perímetro cuadrado, lo que requiere un manejo sólido de las <strong>fórmulas básicas</strong> y la <strong>resolución de ecuaciones</strong>.</p>",
+    "summaryKey": "ai-cat-1756781473432-1",
+    "problem_ids": [
+      "q-ai-cat-1756781473432-1-0",
+      "q-ai-cat-1756781473432-1-1",
+      "q-ai-cat-1756781473432-1-2",
+      "q-ai-cat-1756781473432-1-3",
+      "q-ai-cat-1756781473432-1-4",
+      "q-ai-cat-1756781473432-1-5"
+    ]
+  },
+  {
+    "id": "ai-cat-1756781473432-2",
+    "title": "Áreas y Perímetros de Figuras Compuestas",
+    "description": "<p>Esta sección desafía tu capacidad para descomponer <strong>figuras complejas</strong> en formas más simples para calcular sus áreas y perímetros.</p><p>Las estrategias clave son:</p><ul><li><strong>Descomposición:</strong> Dividir una figura achurada o compuesta en varias formas geométricas básicas (cuadrados, rectángulos, círculos, semicírculos, triángulos).</li><li><strong>Sustracción de Áreas:</strong> Calcular el área de una figura grande y restar el área de las figuras internas o no sombreadas para obtener el área de la región deseada.</li><li>Para <strong>perímetros compuestos</strong>, suma las longitudes de todos los segmentos de contorno, incluidos arcos de círculo y lados de polígonos.</li></ul><p>Presta especial atención a la identificación de radios, diámetros y lados comunes en figuras superpuestas o anidadas. La visualización espacial es crucial.</p>",
+    "summaryKey": "ai-cat-1756781473432-2",
+    "problem_ids": [
+      "q-ai-cat-1756781473432-2-0",
+      "q-ai-cat-1756781473432-2-1",
+      "q-ai-cat-1756781473432-2-2",
+      "q-ai-cat-1756781473432-2-3",
+      "q-ai-cat-1756781473432-2-4",
+      "q-ai-cat-1756781473432-2-5",
+      "q-ai-cat-1756781473432-2-6"
+    ]
+  },
+  {
+    "id": "ai-cat-1756781473432-3",
+    "title": "Geometría Avanzada y Aplicaciones",
+    "description": "<p>Esta última categoría integra conocimientos avanzados de geometría con su aplicación en <strong>problemas del mundo real</strong>.</p><p>Aborda figuras como:</p><ul><li><strong>Rombos:</strong> Recuerda que sus diagonales son perpendiculares y se bisecan. El área es \\(A = \\frac{1}{2} d_1 d_2\\). Si se dan ángulos, puedes usar trigonometría o propiedades de triángulos especiales.</li><li><strong>Trapecios Isósceles:</strong> Puedes descomponerlos en un rectángulo y dos triángulos rectángulos para calcular alturas y áreas. El área es \\(A = \\frac{1}{2}(b_1 + b_2)h\\).</li></ul><p>Se requiere comprensión de las <strong>relaciones de los círculos inscritos y circunscritos</strong> a triángulos, especialmente triángulos equiláteros y rectángulos. Por ejemplo, en un <strong>triángulo rectángulo</strong>, el radio de la circunferencia circunscrita es la mitad de la hipotenusa (\\(R = c/2\\)).</p><p>Las aplicaciones incluyen cálculos de distancia y área en escenarios prácticos, enfatizando la interpretación de problemas y la conversión de unidades.</p>",
+    "summaryKey": "ai-cat-1756781473432-3",
+    "problem_ids": [
+      "q-ai-cat-1756781473432-3-0",
+      "q-ai-cat-1756781473432-3-1",
+      "q-ai-cat-1756781473432-3-2",
+      "q-ai-cat-1756781473432-3-3",
+      "q-ai-cat-1756781473432-3-4",
+      "q-ai-cat-1756781473432-3-5"
+    ]
+  }
+];
+
+        const problemsById = {};
+        allProblemsData.forEach(p => { problemsById[p.id] = p; });
+        
+        let currentQuizProblems = [];
+        let currentCategory = null;
+        let completedCategories = JSON.parse(localStorage.getItem('completedQuizCategories')) || {};
+        let currentProblemIndex = 0;
+        let score = 0;
+        
+        const categorySelectionScreen = document.getElementById('category-selection-screen');
+        const categoryListEl = document.getElementById('category-list');
+        const overallProgressContainer = document.getElementById('overall-progress-container');
+        const overallScoreEl = document.getElementById('overall-score');
+        const showFinalResultsBtn = document.getElementById('show-final-results-btn');
+        const quizWrapperEl = document.getElementById('quiz-wrapper');
+        const summaryContainerEl = document.getElementById('summary-container');
+        const summaryContinueBtn = document.getElementById('summary-continue-btn');
+        const quizContainerEl = document.getElementById('quiz-container');
+        const headerEl = document.getElementById('problem-header');
+        const questionEl = document.getElementById('question-container');
+        const graphEl = document.getElementById('graph-container');
+        const optionsEl = document.getElementById('options-container');
+        const feedbackEl = document.getElementById('feedback-container');
+        const nextButton = document.getElementById('next-button');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const finalScreenEl = document.getElementById('final-screen');
+        const backToMenuBtn = document.getElementById('back-to-menu-btn');
+
+        function renderCategoryScreen() {
+            categoryListEl.innerHTML = '';
+            let totalCompleted = 0;
+            let totalPossibleScore = 0;
+            let totalUserScore = 0;
+
+            categories.forEach(cat => {
+                const li = document.createElement('li');
+                li.className = 'category-item';
+                li.dataset.categoryId = cat.id;
+                
+                const catProgress = completedCategories[cat.id];
+                let progressHTML = '';
+                if(catProgress) {
+                    li.classList.add('completed');
+                    if (catProgress.total > 0) {
+                        progressHTML = `<div class="progress-info">Completado: ${catProgress.score}/${catProgress.total}</div>`;
+                    }
+                    totalCompleted++;
+                    totalUserScore += catProgress.score;
+                    totalPossibleScore += cat.problem_ids.length;
+                }
+
+                li.innerHTML = `<h3>${cat.title}</h3><p>${cat.description.replace(/<[^>]*>?/gm, '').substring(0, 100)}...</p>${progressHTML}`;
+                li.onclick = () => {
+                    if (!li.classList.contains('completed')) {
+                        startCategory(cat.id);
+                    }
+                };
+                categoryListEl.appendChild(li);
+            });
+
+            if (Object.keys(completedCategories).length > 0) {
+                overallProgressContainer.classList.remove('hidden');
+                overallScoreEl.textContent = `Puntaje total: ${totalUserScore} de ${totalPossibleScore} correctas. Secciones completadas: ${totalCompleted} de ${categories.length}.`;
+            } else {
+                 overallProgressContainer.classList.add('hidden');
+            }
+
+            if (totalCompleted === categories.length && categories.length > 0) {
+                showFinalResultsBtn.classList.remove('hidden');
+            } else {
+                showFinalResultsBtn.classList.add('hidden');
+            }
+
+            quizWrapperEl.classList.add('hidden');
+            categorySelectionScreen.classList.remove('hidden');
+        }
+
+        function startCategory(categoryId) {
+            currentCategory = categories.find(c => c.id === categoryId);
+            if (!currentCategory) return;
+            
+            categorySelectionScreen.classList.add('hidden');
+            quizWrapperEl.classList.remove('hidden');
+
+            currentQuizProblems = currentCategory.problem_ids.map(id => problemsById[id]);
+            currentProblemIndex = 0;
+            score = 0;
+            
+            showSummary(currentCategory.id);
+        }
+
+        function showSummary(summaryKey) {
+            const summary = summaries[summaryKey];
+            if (!summary) {
+                 summaryContinueBtn.onclick(); return;
+            }
+            
+            const summaryTitleEl = document.getElementById('summary-title');
+            const keyConceptsEl = document.getElementById('summary-key-concepts');
+            const tipsListEl = document.getElementById('summary-tips-list');
+    
+            summaryTitleEl.textContent = `Preparación para: ${summary.title}`;
+            keyConceptsEl.innerHTML = summary.key_concepts_html;
+            
+            tipsListEl.innerHTML = '';
+            summary.tips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                tipsListEl.appendChild(li);
+            });
+            
+            renderMath();
+            quizContainerEl.classList.add('hidden');
+            finalScreenEl.classList.add('hidden');
+            summaryContainerEl.classList.remove('hidden');
+        }
+
+        summaryContinueBtn.onclick = () => {
+            summaryContainerEl.classList.add('hidden');
+            if (currentQuizProblems && currentQuizProblems.length > 0) {
+                quizContainerEl.classList.remove('hidden');
+                renderProblem(currentProblemIndex);
+            } else {
+                endOfCategory();
+            }
+        };
+        
+        function renderProblem(index) {
+            optionsEl.innerHTML = '';
+            feedbackEl.style.display = 'none';
+            nextButton.classList.remove('visible');
+            graphEl.innerHTML = '';
+            optionsEl.className = '';
+
+            const problem = currentQuizProblems[index];
+            if (!problem) {
+                console.error("Could not find problem for index:", index, "in category:", currentCategory.title);
+                questionEl.innerHTML = "Error: No se pudo cargar la pregunta. Verifique que los datos sean correctos.";
+                return;
+            }
+
+            headerEl.textContent = `Pregunta ${index + 1} de ${currentQuizProblems.length}`;
+            questionEl.innerHTML = problem.text;
+            progressBar.style.width = `${((index) / currentQuizProblems.length) * 100}%`;
+            scoreCounterEl.textContent = `✅ Puntos: ${score}`;
+            
+            if (problem.diagram) {
+                graphEl.style.display = 'block';
+                graphEl.innerHTML = renderDiagram(problem.diagram);
+            } else {
+                graphEl.style.display = 'none';
+            }
+            
+            const optionsHaveDiagrams = problem.options.some(opt => opt.diagram);
+
+            if (optionsHaveDiagrams) {
+                 optionsEl.className = 'options-grid-with-graphs';
+                 problem.options.forEach((opt, i) => createOptionBlock(opt, i));
+            } else {
+                 problem.options.forEach((opt, i) => createOptionButton(opt, i));
+            }
+            renderMath();
+        }
+        
+        function createOptionButton(option, index) {
+            const button = document.createElement('button');
+            button.className = 'option-button';
+            button.dataset.index = index;
+            button.innerHTML = `<span class="label">${String.fromCharCode(65 + index)})</span> <span class="value">${option.text || ''}</span>`;
+            button.onclick = handleOptionClick;
+            optionsEl.appendChild(button);
+        }
+        
+        function createOptionBlock(option, index) {
+            const optionBlock = document.createElement('div');
+            optionBlock.className = 'option-block-graph';
+            optionBlock.dataset.index = index;
+            optionBlock.onclick = handleOptionClick;
+            let diagramHTML = option.diagram ? `<div class="option-graph-canvas-container">${renderDiagram(option.diagram)}</div>` : '';
+            optionBlock.innerHTML = `<div class="label">${String.fromCharCode(65 + index)}) ${option.text || ''}</div> ${diagramHTML}`;
+            optionsEl.appendChild(optionBlock);
+        }
+
+        function handleOptionClick(event) {
+            const problem = currentQuizProblems[currentProblemIndex];
+            const selectedIndex = parseInt(event.currentTarget.dataset.index, 10);
+            const correctIndex = problem.correct;
+            
+            const correctButton = document.querySelector(`[data-index="${correctIndex}"]`);
+            if (correctButton) correctButton.classList.add('correct');
+            
+            let isAnswerCorrect = false;
+            const selectedButton = event.currentTarget;
+            if (selectedIndex === correctIndex) {
+                score++;
+                isAnswerCorrect = true;
+            } else {
+                selectedButton.classList.add('incorrect');
+            }
+            
+            scoreCounterEl.textContent = `✅ Puntos: ${score}`;
+            document.querySelectorAll('.option-button, .option-block-graph').forEach(btn => { btn.classList.add('disabled'); btn.onclick = null; });
+            progressBar.style.width = `${((currentProblemIndex + 1) / currentQuizProblems.length) * 100}%`;
+            
+            feedbackEl.className = isAnswerCorrect ? 'feedback-container correct' : 'feedback-container incorrect';
+            const feedbackTitle = isAnswerCorrect ? `<div id="feedback-title">${icons.check} Correcto</div>` : `<div id="feedback-title">${icons.x} Incorrecto</div>`;
+            feedbackEl.innerHTML = `${feedbackTitle}${problem.explanation}`;
+            
+            renderMath();
+            feedbackEl.style.display = 'block';
+            if (currentProblemIndex < currentQuizProblems.length - 1) { nextButton.textContent = 'Siguiente →'; } 
+            else { nextButton.textContent = 'Finalizar Sección'; }
+            nextButton.classList.add('visible');
+        }
+
+        nextButton.onclick = () => {
+            currentProblemIndex++;
+            if (currentProblemIndex < currentQuizProblems.length) {
+                renderProblem(currentProblemIndex);
+            } else {
+                endOfCategory();
+            }
+        };
+        
+        function endOfCategory() {
+            completedCategories[currentCategory.id] = {
+                score: score,
+                total: currentQuizProblems.length
+            };
+            localStorage.setItem('completedQuizCategories', JSON.stringify(completedCategories));
+            
+            quizContainerEl.classList.add('hidden');
+            finalScreenEl.classList.remove('hidden');
+
+            const percentage = currentQuizProblems.length > 0 ? Math.round((score / currentQuizProblems.length) * 100) : 100;
+            document.getElementById('final-title').textContent = `Sección Completada: ${currentCategory.title}`;
+            document.getElementById('final-message').textContent = currentQuizProblems.length > 0 ? `¡Gran trabajo! Has completado esta sección.` : `¡Concepto explorado! Ahora puedes continuar con la siguiente sección.`;
+            document.getElementById('final-score').textContent = currentQuizProblems.length > 0 ? `${score} / ${currentQuizProblems.length}` : '✔';
+            const finalPercentageEl = document.getElementById('final-percentage');
+            if (currentQuizProblems.length > 0) {
+                finalPercentageEl.textContent = `(${percentage}%)`;
+                finalPercentageEl.style.color = percentage >= 60 ? 'var(--success-color)' : 'var(--danger-color)';
+            } else {
+                finalPercentageEl.textContent = '';
+            }
+            backToMenuBtn.textContent = 'Volver al Menú';
+            backToMenuBtn.onclick = () => {
+                finalScreenEl.classList.add('hidden');
+                renderCategoryScreen();
+            };
+        }
+        
+        showFinalResultsBtn.onclick = () => {
+            categorySelectionScreen.classList.add('hidden');
+            quizWrapperEl.classList.remove('hidden');
+
+            summaryContainerEl.classList.add('hidden');
+            quizContainerEl.classList.add('hidden');
+            finalScreenEl.classList.remove('hidden');
+
+            let totalScore = 0;
+            let totalProblems = 0;
+            Object.values(completedCategories).forEach(cat => {
+                totalScore += cat.score;
+                if (cat.total > 0) {
+                    totalProblems += cat.total;
+                }
+            });
+
+            const percentage = totalProblems > 0 ? Math.round((totalScore / totalProblems) * 100) : 0;
+            document.getElementById('final-title').textContent = '¡Resumen Final del Desafío!';
+            document.getElementById('final-message').textContent = '¡Felicidades! Has completado todos los temas. Este es tu rendimiento general.';
+            document.getElementById('final-score').textContent = `${totalScore} / ${totalProblems}`;
+            const finalPercentageEl = document.getElementById('final-percentage');
+            finalPercentageEl.textContent = `(${percentage}%)`;
+            finalPercentageEl.style.color = percentage >= 60 ? 'var(--success-color)' : 'var(--danger-color)';
+            
+            backToMenuBtn.textContent = 'Reiniciar Desafío';
+            backToMenuBtn.onclick = () => {
+                localStorage.removeItem('completedQuizCategories');
+                window.location.reload();
+            };
+        };
+        
+        renderCategoryScreen();
+        renderMath();
+    });
+    </script>
+</body>
+</html>
+  
